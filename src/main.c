@@ -324,7 +324,7 @@ static void execp(instruction_t *prg, size_t prg_size){
         uint8_t imm = (inst.operation & IMM_FLAG) ? 1 : 0;
 
         uint8_t reg1 = 0, reg2 = 0;
-        uint8_t reg_field = inst.operation & 0xF0;
+        uint8_t reg_field = inst.operation & 0x70;
         if (reg_field == REG_A)      reg1 = 0;
         else if (reg_field == REG_B) reg1 = 1;
         else if (reg_field == REG_C) reg1 = 2;
