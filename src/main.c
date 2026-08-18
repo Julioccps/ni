@@ -324,29 +324,30 @@ static void execp(instruction_t *prg, size_t prg_size){
         uint8_t imm = (inst.operation & IMM_FLAG) ? 1 : 0;
 
         uint8_t reg1 = 0, reg2 = 0;
-        if (inst.operation & REG_A)      reg1 = 0;
-        else if (inst.operation & REG_B) reg1 = 1;
-        else if (inst.operation & REG_C) reg1 = 2;
-        else if (inst.operation & REG_D) reg1 = 3;
-        else if (inst.operation & REG_E) reg1 = 4;
+        uint8_t reg_field = inst.operation & 0xF0;
+        if (reg_field == REG_A)      reg1 = 0;
+        else if (reg_field == REG_A) reg1 = 1;
+        else if (reg_field == REG_A) reg1 = 2;
+        else if (reg_field == REG_A) reg1 = 3;
+        else if (reg_field == REG_A) reg1 = 4;
 
         if (!imm){
-            if (inst.argument & REG_A)      reg2 = 0;
-            else if (inst.argument & REG_B) reg2 = 1;
-            else if (inst.argument & REG_C) reg2 = 2;
-            else if (inst.argument & REG_D) reg2 = 3;
-            else if (inst.argument & REG_E) reg2 = 4;
+            if (inst.argument == REG_A)      reg2 = 0;
+            else if (inst.argument == REG_B) reg2 = 1;
+            else if (inst.argument == REG_C) reg2 = 2;
+            else if (inst.argument == REG_D) reg2 = 3;
+            else if (inst.argument == REG_E) reg2 = 4;
         }
 
         if (op == OP_ADD){
             uint8_t val = imm ? inst.argument : reg_file[reg2];
             uint16_t res = (uint16_t)reg_file[reg1] + (uint16_t)val;
-            reg_file[reg1] = (res > 255) ? (uint8_t)(res - 255) : (uint8_t)res;
+            reg_file[reg1] = (res > 255) ? (uint8_t)(res - 256) : (uint8_t)res;
         }
         else if (op == OP_SUB){
             uint8_t val = imm ? inst.argument : reg_file[reg2];
             int16_t res = (int16_t)reg_file[reg1] - (int16_t)val;
-            reg_file[reg1] = (res < 0) ? (uint8_t)(255 + res) : (uint8_t)res;
+            reg_file[reg1] = (res < 0) ? (uint8_t)(256 + res) : (uint8_t)res;
         }
         else if (op == OP_LOAD){
             uint8_t idx = imm ? inst.argument : reg_file[reg2];

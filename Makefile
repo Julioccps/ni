@@ -2,7 +2,7 @@ SRC_DIR := src
 BUILD_DIR := build
 
 CC := clang
-CFLAFS := -Wall -Wextra -Wpedantic
+CFLAFS := -Wall -Wextra -Wpedantic -D_CRT_SECURE_NO_WARNINGS
 
 SRCS := $(SRC_DIR)/main.c
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/%.o, $(SRCS))
