@@ -326,10 +326,10 @@ static void execp(instruction_t *prg, size_t prg_size){
         uint8_t reg1 = 0, reg2 = 0;
         uint8_t reg_field = inst.operation & 0xF0;
         if (reg_field == REG_A)      reg1 = 0;
-        else if (reg_field == REG_A) reg1 = 1;
-        else if (reg_field == REG_A) reg1 = 2;
-        else if (reg_field == REG_A) reg1 = 3;
-        else if (reg_field == REG_A) reg1 = 4;
+        else if (reg_field == REG_B) reg1 = 1;
+        else if (reg_field == REG_C) reg1 = 2;
+        else if (reg_field == REG_D) reg1 = 3;
+        else if (reg_field == REG_E) reg1 = 4;
 
         if (!imm){
             if (inst.argument == REG_A)      reg2 = 0;
