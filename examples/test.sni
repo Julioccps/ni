@@ -1,0 +1,40 @@
+MOV A 72    ; H
+STORE A 0
+XOR A 45    ; e
+STORE A 1
+XOR A 9     ; l
+STORE A 2
+OR A 0      ; l
+STORE A 3
+OR A 3      ; o
+STORE A 4
+AND A 44    ; ','
+STORE A 5
+AND A 32    ; ' '
+STORE A 6
+XOR A 119   ; W
+STORE A 7
+XOR A 56    ; o
+STORE A 8
+XOR A 29    ; r
+STORE A 9
+XOR A 30    ; l
+STORE A 10
+AND A 100   ; d
+STORE A 11
+XOR A 110   ; '\n'
+STORE A 12
+
+XOR C C
+XOR A A
+
+LABEL 0
+LOAD B C
+CMP B 10
+JEQ 1
+PRINT B
+ADD C 1
+JMP 0
+
+LABEL 1
+PRINT B
