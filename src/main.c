@@ -289,14 +289,35 @@ static instruction_t *parse_sni(const char *source, size_t len, size_t *out_prg_
 
 static inline void usage(void){
     puts("Usage: ni [-c | -e] <file>");
-    puts("  -c  Compile to bytecode dump (hex bytes)");
+    puts("  -c  Compile .sni to a .ni bytecode image");
     puts("  -e  Execute the program");
 }
 
-static void dump_bytecode(instruction_t *prg, size_t prg_size) {
-    for (size_t i = 0; i < prg_size; i++) {
-        printf("[%04zu] 0x%02X 0x%02X\n", i, prg[i].operation, prg[i].argument);
+static int sni_to_ni_path(const char *src, char *out, size_t out_sz) {
+    const char *dot = strrchr(src, '.');
+    if (!dot) return -1;
+
+    size_t n = (size_t)(dot - src);
+    if (n + 4 > out_sz) return -1;
+
+    memcpy(out, src, n);
+    memcpy(out + n, ".ni", 4);
+    return 0;
+}
+
+static int write_ni(const char *path, const instruction_t *prg, size_t prg_size) {
+    FILE *out = fopen(path, "wb");
+    if (!out) {
+        fprintf(stderr, "Could not write file: %s\n", path);
+        return -1;
     }
+
+    size_t written = fwrite(prg, sizeof(instruction_t), prg_size, out);
+    if (fclose(out) != 0 || written != prg_size) {
+        fprintf(stderr, "Failed to write bytecode: %s\n", path);
+        return -1;
+    }
+    return 0;
 }
 
 static void execp(instruction_t *prg, size_t prg_size){
@@ -468,6 +489,10 @@ int main(int argc, char **argv){
         fputs("Error: file extension unsupported\n", stderr);
         return 1;
     }
+    if (mode == MODE_COMPILE && ft != SNI_TYPE) {
+        fputs("Error: -c expects a .sni source file\n", stderr);
+        return 1;
+    }
 
     FILE *f = fopen(filepath, ft == NI_TYPE ? "rb" : "r");
     if (f == NULL){
@@ -519,7 +544,18 @@ int main(int argc, char **argv){
     }
 
     if (mode == MODE_COMPILE) {
-        dump_bytecode(prg, prg_size);
+        char outpath[4096];
+        if (sni_to_ni_path(filepath, outpath, sizeof(outpath)) != 0) {
+            fputs("Error: output path too long\n", stderr);
+            free(prg);
+            return 1;
+        }
+
+        if (write_ni(outpath, prg, prg_size) != 0) {
+            free(prg);
+            return 1;
+        }
+        printf("Wrote %zu instructions to %s\n", prg_size, outpath);
     } else if (mode == MODE_EXEC) {
         execp(prg, prg_size);
     }
