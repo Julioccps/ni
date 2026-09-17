@@ -22,6 +22,7 @@ It's a little VM, Assembler in a single file
 * JEQ
 * MOV
 * PRINT
+* INPUT
 
 ## Registers
 

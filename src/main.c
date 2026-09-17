@@ -24,6 +24,7 @@ typedef enum {
     OP_JEQ      = 0x0B,
     OP_MOV      = 0x0C,
     OP_PRINT    = 0x0D,
+    OP_INPUT    = 0x0E,
 } op_code;
 
 typedef enum {
@@ -162,6 +163,7 @@ static token_t lexer_next(lexer_t *l) {
     if (sv_equals(sv, "JEQ"))   return (token_t){ .type = TOK_OPCODE, .text = sv, .value = OP_JEQ,   .line = start_line, .col = start_col };
     if (sv_equals(sv, "MOV"))   return (token_t){ .type = TOK_OPCODE, .text = sv, .value = OP_MOV,   .line = start_line, .col = start_col };
     if (sv_equals(sv, "PRINT")) return (token_t){ .type = TOK_OPCODE, .text = sv, .value = OP_PRINT, .line = start_line, .col = start_col };
+    if (sv_equals(sv, "INPUT")) return (token_t){ .type = TOK_OPCODE, .text = sv, .value = OP_INPUT, .line = start_line, .col = start_col };
 
     return (token_t){ .type = TOK_IDENTIFIER, .text = sv, .value = 0, .line = start_line, .col = start_col };
 }
@@ -215,10 +217,11 @@ static instruction_t *parse_sni(const char *source, size_t len, size_t *out_prg_
         uint8_t arg_val = 0;
         uint8_t is_imm = 0;
 
-        if (op == OP_NOT) {
+        if (op == OP_NOT || op == OP_INPUT) {
             token_t r = lexer_next(&lexer);
             if (r.type != TOK_REG) {
-                fprintf(stderr, "[%u:%u] Syntax Error: NOT expects a register\n", r.line, r.col);
+                fprintf(stderr, "[%u:%u] Syntax Error: %s expects a register\n",
+                        r.line, r.col, op == OP_NOT ? "NOT" : "INPUT");
                 free(prg);
                 return NULL;
             }
@@ -425,6 +428,11 @@ static void execp(instruction_t *prg, size_t prg_size){
             uint8_t val = imm ? inst.argument : reg_file[reg1];
             putc((char)val, stdout);
             fflush(stdout);
+        }
+        else if (op == OP_INPUT){
+            fflush(stdout);
+            int ch = getchar();
+            reg_file[reg1] = (ch == EOF) ? 0xFF : (uint8_t)ch;
         }
     }
 }
